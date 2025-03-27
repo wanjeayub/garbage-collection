@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require("path");
 const cors = require("cors");
 const connectDB = require("./src/config/db");
 require("dotenv").config();
@@ -11,6 +12,8 @@ const paymentRoutes = require("./src/routes/paymentRoutes");
 
 // Initialize app
 const app = express();
+// use var to prevent future bugs on render
+var __dirname = path.resolve();
 
 // Connect to MongoDB
 connectDB();
@@ -23,6 +26,17 @@ app.use(bodyParser.json());
 app.use("/api/locations", locationRoutes);
 app.use("/api/plots", plotRoutes);
 app.use("/api/schedules", paymentRoutes);
+
+// test
+app.use("/", (req, res) => {
+  res.status(200).json("all working okay");
+});
+
+app.use(express.static(path.join(__dirname, "/client/dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "dist", "index.html"));
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
